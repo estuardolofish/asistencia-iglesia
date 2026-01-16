@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Hermano {
+  id        Int      @id @default(autoincrement())
+  nombres   String
+  apellidos String
+  activo    Boolean  @default(true)
+
+  // relaciones
+  membresias Membresia[]
+  asistencias Asistencia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([nombres, apellidos])
+}
+
+model Agrupacion {
+  id      Int    @id @default(autoincrement())
+  nombre  String @unique
+  activa  Boolean @default(true)
+
+  // relaciones
+  membresias Membresia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Membresia {
+  id          Int @id @default(autoincrement())
+  hermanoId   Int
+  agrupacionId Int
+
+  hermano     Hermano   @relation(fields: [hermanoId], references: [id], onDelete: Cascade)
+  agrupacion  Agrupacion @relation(fields: [agrupacionId], references: [id], onDelete: Cascade)
+
+  @@unique([hermanoId, agrupacionId])
+  @@index([agrupacionId])
+}
+
+model Actividad {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  fechaHora DateTime
+  abierta   Boolean  @default(true)
+
+  asistencias Asistencia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([fechaHora])
+}
+
+model Asistencia {
+  id         Int      @id @default(autoincrement())
+  actividadId Int
+  hermanoId  Int
+  marcadaEn  DateTime @default(now())
+
+  actividad  Actividad @relation(fields: [actividadId], references: [id], onDelete: Cascade)
+  hermano    Hermano   @relation(fields: [hermanoId], references: [id], onDelete: Cascade)
+
+  @@unique([actividadId, hermanoId])
+  @@index([actividadId])
+  @@index([hermanoId])
+}
