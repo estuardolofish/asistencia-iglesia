@@ -7,9 +7,18 @@ import { AgrupacionesModule } from './agrupaciones/agrupaciones.module';
 import { ActividadesModule } from './actividades/actividades.module';
 import { AsistenciasModule } from './asistencias/asistencias.module';
 import { ReportesModule } from './reportes/reportes.module';
+import { MembresiasModule } from './membresias/membresias.module';
 
 @Module({
-  imports: [PrismaModule, HermanosModule, AgrupacionesModule, ActividadesModule, AsistenciasModule, ReportesModule],
+  imports: [
+    PrismaModule,
+    HermanosModule,
+    AgrupacionesModule,
+    ActividadesModule,
+    AsistenciasModule,
+    ReportesModule,
+    MembresiasModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
