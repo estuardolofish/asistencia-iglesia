@@ -35,9 +35,7 @@ export class ReportesService {
       const miembros = ag.membresias
         .map((m) => m.hermano)
         .filter((h) => h.activo)
-        .sort((a, b) =>
-          (a.apellidos + a.nombres).localeCompare(b.apellidos + b.nombres),
-        );
+        .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
 
       const presentes = miembros.filter((h) => presentesSet.has(h.id));
       const ausentes = miembros.filter((h) => !presentesSet.has(h.id));

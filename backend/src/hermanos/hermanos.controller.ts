@@ -27,9 +27,16 @@ export class HermanosController {
     return this.service.findAll();
   }
 
+  // buscar por nombre completo
   @Get('buscar')
   search(@Query('q') q: string) {
-    return this.service.search(q);
+    return this.service.searchByNombreCompleto(q);
+  }
+
+  // buscar directo por id
+  @Get(':id')
+  findById(@Param('id', ParseIntPipe) id: number) {
+    return this.service.findById(id);
   }
 
   @Patch(':id')

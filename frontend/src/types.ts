@@ -6,8 +6,8 @@ export type Agrupacion = {
 
 export type Hermano = {
   id: number;
-  nombres: string;
-  apellidos: string;
+  nombreCompleto: string;
+  puesto?: string | null;
   activo: boolean;
   membresias?: { agrupacion: Agrupacion }[];
 };

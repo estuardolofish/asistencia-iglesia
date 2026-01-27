@@ -9,8 +9,8 @@ datasource db {
 
 model Hermano {
   id        Int      @id @default(autoincrement())
-  nombres   String
-  apellidos String
+  nombreCompleto String
+  puesto        String?  //  opcional (presi, vice, etc.)
   activo    Boolean  @default(true)
 
   // relaciones
@@ -20,7 +20,7 @@ model Hermano {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([nombres, apellidos])
+  @@index([nombreCompleto])
 }
 
 model Agrupacion {

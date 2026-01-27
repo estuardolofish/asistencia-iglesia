@@ -14,8 +14,14 @@ function useDebounce<T>(value: T, ms: number) {
 export default function AsistenciaPage() {
   const [actividad, setActividad] = useState<Actividad | null>(null);
   const [actividades, setActividades] = useState<Actividad[]>([]);
+
+  // buscar por nombre completo
   const [q, setQ] = useState("");
   const qDebounced = useDebounce(q, 250);
+
+  // buscar por id
+  const [idInput, setIdInput] = useState("");
+  const [hermanoPorId, setHermanoPorId] = useState<Hermano | null>(null);
 
   const [resultados, setResultados] = useState<Hermano[]>([]);
   const [loading, setLoading] = useState(false);
@@ -55,6 +61,22 @@ export default function AsistenciaPage() {
     if (!actividadId) return;
     await api.post("/asistencias/marcar", { actividadId, hermanoId });
     alert("Asistencia marcada ✅");
+  };
+
+  const buscarPorId = async () => {
+    const id = Number(idInput);
+    if (!id || id < 1) {
+      setHermanoPorId(null);
+      return;
+    }
+
+    try {
+      const r = await api.get<Hermano>(`/hermanos/${id}`);
+      setHermanoPorId(r.data);
+    } catch {
+      setHermanoPorId(null);
+      alert("No existe un hermano con ese ID");
+    }
   };
 
   const pdfUrl = useMemo(() => {
@@ -98,12 +120,91 @@ export default function AsistenciaPage() {
         </div>
       </div>
 
+      {/* Marcar por ID */}
+      <div
+        style={{
+          marginBottom: 12,
+          border: "1px solid #ddd",
+          borderRadius: 10,
+          padding: 12,
+        }}
+      >
+        <div style={{ fontSize: 14, marginBottom: 6 }}>
+          Marcar asistencia por ID
+        </div>
+
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <input
+            value={idInput}
+            onChange={(e) => setIdInput(e.target.value)}
+            placeholder="ID del hermano (ej: 12)"
+            style={{ padding: 10, width: 260, fontSize: 16 }}
+          />
+          <button
+            onClick={buscarPorId}
+            style={{ padding: "10px 14px", cursor: "pointer" }}
+          >
+            Buscar
+          </button>
+
+          {hermanoPorId && (
+            <button
+              onClick={() => onMarcar(hermanoPorId.id)}
+              style={{ padding: "10px 14px", cursor: "pointer" }}
+            >
+              Marcar #{hermanoPorId.id}
+            </button>
+          )}
+        </div>
+
+        {hermanoPorId && (
+          <div
+            style={{
+              marginTop: 10,
+              border: "1px solid #eee",
+              borderRadius: 10,
+              padding: 10,
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: 18 }}>
+              #{hermanoPorId.id} — {hermanoPorId.nombreCompleto}{" "}
+              {hermanoPorId.puesto ? `(${hermanoPorId.puesto})` : ""}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                gap: 6,
+                flexWrap: "wrap",
+                marginTop: 6,
+              }}
+            >
+              {(hermanoPorId.membresias ?? []).map((m, i) => (
+                <span
+                  key={i}
+                  style={{
+                    fontSize: 14,
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    border: "1px solid #ccc",
+                  }}
+                >
+                  {m.agrupacion.nombre}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Buscar por nombre completo */}
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 12, marginBottom: 6 }}>Buscar hermano</div>
+        <div style={{ fontSize: 14, marginBottom: 6 }}>
+          Buscar por nombre completo
+        </div>
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Escribe nombre o apellido..."
+          placeholder="Escribe el nombre completo..."
           style={{ padding: 10, width: "100%", fontSize: 16 }}
         />
       </div>
@@ -125,8 +226,9 @@ export default function AsistenciaPage() {
             }}
           >
             <div>
-              <div style={{ fontWeight: 700 }}>
-                {h.apellidos}, {h.nombres}
+              <div style={{ fontWeight: 700, fontSize: 20 }}>
+                #{h.id} — {h.nombreCompleto}{" "}
+                {h.puesto ? <span style={{ opacity: 0.8 }}>({h.puesto})</span> : null}
               </div>
               <div
                 style={{
@@ -140,7 +242,7 @@ export default function AsistenciaPage() {
                   <span
                     key={i}
                     style={{
-                      fontSize: 12,
+                      fontSize: 14,
                       padding: "2px 8px",
                       borderRadius: 999,
                       border: "1px solid #ccc",

@@ -13,30 +13,34 @@ export class HermanosService {
 
   findAll() {
     return this.prisma.hermano.findMany({
-      orderBy: [{ apellidos: 'asc' }, { nombres: 'asc' }],
+      orderBy: [{ nombreCompleto: 'asc' }],
       include: {
         membresias: { include: { agrupacion: true } },
       },
     });
   }
 
-  search(q: string) {
+  searchByNombreCompleto(q: string) {
     const term = q?.trim();
     if (!term) return [];
 
     return this.prisma.hermano.findMany({
       where: {
         activo: true,
-        OR: [
-          { nombres: { contains: term, mode: 'insensitive' } },
-          { apellidos: { contains: term, mode: 'insensitive' } },
-        ],
+        nombreCompleto: { contains: term, mode: 'insensitive' },
       },
       take: 20,
-      orderBy: [{ apellidos: 'asc' }, { nombres: 'asc' }],
+      orderBy: [{ nombreCompleto: 'asc' }],
       include: {
         membresias: { include: { agrupacion: true } },
       },
+    });
+  }
+
+  findById(id: number) {
+    return this.prisma.hermano.findUnique({
+      where: { id },
+      include: { membresias: { include: { agrupacion: true } } },
     });
   }
 

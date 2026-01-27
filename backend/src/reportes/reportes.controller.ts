@@ -41,7 +41,9 @@ export class ReportesController {
         doc.fontSize(10).text('- (ninguno)');
       } else {
         for (const h of item.presentes) {
-          doc.fontSize(10).text(`- ${h.apellidos}, ${h.nombres}`);
+          doc
+            .fontSize(10)
+            .text(`- #${h.id} - ${h.nombreCompleto} - ${h.puesto ?? ''}`);
         }
       }
 
@@ -51,7 +53,9 @@ export class ReportesController {
         doc.fontSize(10).text('- (ninguno)');
       } else {
         for (const h of item.ausentes) {
-          doc.fontSize(10).text(`- ${h.apellidos}, ${h.nombres}`);
+          doc
+            .fontSize(10)
+            .text(`- #${h.id} - ${h.nombreCompleto} - ${h.puesto ?? ''}`);
         }
       }
 

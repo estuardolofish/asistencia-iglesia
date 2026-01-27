@@ -9,8 +9,9 @@ export default function AdminPage() {
 
   // forms
   const [nombreAgr, setNombreAgr] = useState("");
-  const [nombres, setNombres] = useState("");
-  const [apellidos, setApellidos] = useState("");
+
+  const [nombreCompleto, setNombreCompleto] = useState("");
+  const [puesto, setPuesto] = useState("");
 
   const [mHermanoId, setMHermanoId] = useState<number | "">("");
   const [mAgrupacionId, setMAgrupacionId] = useState<number | "">("");
@@ -41,10 +42,15 @@ export default function AdminPage() {
   };
 
   const crearHermano = async () => {
-    if (!nombres.trim() || !apellidos.trim()) return;
-    await api.post("/hermanos", { nombres, apellidos });
-    setNombres("");
-    setApellidos("");
+    if (!nombreCompleto.trim()) return;
+
+    await api.post("/hermanos", {
+      nombreCompleto: nombreCompleto.trim(),
+      puesto: puesto.trim() ? puesto.trim() : undefined,
+    });
+
+    setNombreCompleto("");
+    setPuesto("");
     await loadAll();
   };
 
@@ -60,7 +66,6 @@ export default function AdminPage() {
 
   const crearActividad = async () => {
     if (!actNombre.trim() || !actFechaHora) return;
-    // datetime-local => ISO (con timezone local)
     const iso = new Date(actFechaHora).toISOString();
     await api.post("/actividades", {
       nombre: actNombre,
@@ -117,16 +122,16 @@ export default function AdminPage() {
         <h4>Hermanos</h4>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <input
-            value={nombres}
-            onChange={(e) => setNombres(e.target.value)}
-            placeholder="Nombres"
-            style={{ padding: 8 }}
+            value={nombreCompleto}
+            onChange={(e) => setNombreCompleto(e.target.value)}
+            placeholder="Nombre completo"
+            style={{ padding: 8, minWidth: 260 }}
           />
           <input
-            value={apellidos}
-            onChange={(e) => setApellidos(e.target.value)}
-            placeholder="Apellidos"
-            style={{ padding: 8 }}
+            value={puesto}
+            onChange={(e) => setPuesto(e.target.value)}
+            placeholder="Puesto (opcional: presi, vice, tesorero...)"
+            style={{ padding: 8, minWidth: 260 }}
           />
           <button
             onClick={crearHermano}
@@ -139,8 +144,10 @@ export default function AdminPage() {
         <ul>
           {hermanos.map((h) => (
             <li key={h.id}>
-              {h.apellidos}, {h.nombres}{" "}
+              <b>#{h.id}</b> — {h.nombreCompleto}{" "}
+              {h.puesto ? <span style={{ opacity: 0.8 }}>({h.puesto})</span> : null}
               <span style={{ fontSize: 12, opacity: 0.8 }}>
+                {" "}
                 —{" "}
                 {(h.membresias ?? [])
                   .map((m) => m.agrupacion.nombre)
@@ -160,12 +167,12 @@ export default function AdminPage() {
           <select
             value={mHermanoId}
             onChange={(e) => setMHermanoId(Number(e.target.value))}
-            style={{ padding: 8, minWidth: 280 }}
+            style={{ padding: 8, minWidth: 320 }}
           >
             <option value="">-- Hermano --</option>
             {hermanos.map((h) => (
               <option key={h.id} value={h.id}>
-                {h.apellidos}, {h.nombres}
+                #{h.id} — {h.nombreCompleto}
               </option>
             ))}
           </select>
